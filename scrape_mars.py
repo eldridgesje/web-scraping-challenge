@@ -50,7 +50,7 @@ def scrape():
         browser.visit(url)
         html = browser.html
         soup = BeautifulSoup(html, "html.parser")
-        table = soup.find("table")
+        table = str(soup.find("table"))
         return(table)
         browser.quit()
 
