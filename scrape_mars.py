@@ -56,12 +56,38 @@ def scrape():
 
     mars_table = facts_scrape()
 
-    hemispheres = [
-        {"title": "Cerberus Hemisphere", "img_url": "https://marshemispheres.com/images/full.jpg"},
-        {"title": "Schiaparelli Hemisphere", "img_url": "https://marshemispheres.com/images/schiaparelli_enhanced-full.jpg"},
-        {"title": "Syrtis Major Hemisphere", "img_url": "https://marshemispheres.com/images/syrtis_major_enhanced-full.jpg"},
-        {"title": "Valles Marineris Hemisphere", "img_url": "https://marshemispheres.com/images/valles_marineris_enhanced-full.jpg"},
-    ]
+    def hemispheres_scrape():
+        hemURLs = []
+        executable_path = {'executable_path': ChromeDriverManager().install()}
+        browser = Browser('chrome', **executable_path, headless=False)
+        url = "https://marshemispheres.com/index.html"
+        browser.visit(url)
+        links = browser.links.find_by_partial_text('Hemisphere Enhanced')
+        for link in links:
+            hemURLs.append(link['href'])
+        return(hemURLs)
+        browser.quit()
+
+    hemURLs = hemispheres_scrape()
+
+    def hemispheres2_scrape():
+        hemispheres_scrape()
+        hemispheres = []
+        for hemURL in hemURLs:
+            executable_path = {'executable_path': ChromeDriverManager().install()}
+            browser = Browser('chrome', **executable_path, headless=False)
+            url = hemURL
+            browser.visit(url)
+            html = browser.html
+            soup = BeautifulSoup(html, "html.parser")
+            imageLink = browser.links.find_by_partial_text('Sample')
+            imageTitle = soup.find("h2", class_="title").get_text()
+            hemiDict = {"title": imageTitle, "img_url": imageLink['href']}
+            hemispheres.append(hemiDict)
+            browser.quit()
+        return(hemispheres)
+
+    hemispheres = hemispheres2_scrape()
 
     mars_dict = {
         "headline": headline,
